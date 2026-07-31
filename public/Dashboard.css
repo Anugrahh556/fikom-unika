@@ -1,0 +1,1686 @@
+/* =========================================================================
+   0. DESIGN TOKENS — Sistem Jadwal, palet maroon yang di-refine
+   Prinsip: warna hangat & tenang (bukan abu-biru dingin generik),
+   hairline border + shadow dua-lapis (bukan shadow tipis doang),
+   Inter untuk UI, IBM Plex Mono untuk jam/angka biar terasa presisi.
+   ========================================================================= */
+:root {
+    /* Teks */
+    --ink: #1c1517;
+    --ink-soft: #4a4144;
+    --muted: #8c8386;
+
+    /* Permukaan */
+    --paper: #faf9f7;
+    --surface: #ffffff;
+    --surface-tint: #fbf1f1;
+    --line: #ece5e3;
+    --line-strong: #ddd4d1;
+
+    /* Maroon — brand, sudah lebih dalam & tidak flat */
+    --maroon-900: #430b16;
+    --maroon-700: #641021;
+    --maroon-600: #7d1626;
+    --maroon-500: #921c2d;
+    --maroon-tint: #fbeeee;
+    --gold-accent: #d4a24c;
+
+    /* Status semantik — dituning senada, tidak terlalu "candy" */
+    --success: #1f7a4d;
+    --success-bg: #eaf5ef;
+    --info: #2f5fa8;
+    --info-bg: #eef3fb;
+    --warning: #b8790a;
+    --warning-bg: #fdf3e2;
+    --danger: #b3261e;
+    --danger-bg: #fbeceb;
+
+    /* Tipografi */
+    --font-sans: "Inter", -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+    /* Bentuk & kedalaman */
+    --radius-sm: 8px;
+    --radius: 12px;
+    --radius-lg: 16px;
+    --shadow-sm: 0 1px 2px rgba(28, 21, 23, 0.05);
+    --shadow-md: 0 1px 1px rgba(28, 21, 23, 0.04), 0 8px 20px -6px rgba(28, 21, 23, 0.12);
+    --shadow-lg: 0 2px 4px rgba(28, 21, 23, 0.06), 0 20px 40px -12px rgba(28, 21, 23, 0.18);
+}
+
+/* =========================================================================
+   1. STRUKTUR UTAMA & GLOBAL UTILITIES
+   ========================================================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-sans);
+}
+
+body {
+    display: flex;
+    background: var(--paper);
+    min-height: 100vh;
+    color: var(--ink);
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 36px;
+    margin-left: 260px;
+}
+
+.content-box,
+.card,
+.notification {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+}
+
+/* =========================================================================
+   2. SIDEBAR NAVIGASI (MAROON THEME)
+   ========================================================================= */
+.sidebar {
+    width: 260px;
+    background:
+        radial-gradient(ellipse 140% 60% at 0% 0%, rgba(255, 255, 255, 0.06), transparent 60%),
+        linear-gradient(165deg, var(--maroon-700) 0%, var(--maroon-900) 100%);
+    padding: 28px 20px;
+    color: white;
+    opacity: 0;
+    animation: fadeInLeft 0.6s ease-out forwards;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 100;
+}
+
+.sidebar-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 50px;
+}
+
+.sidebar-top img {
+    width: 68px;
+    height: 68px;
+    object-fit: cover;
+}
+
+.logo-text h2 {
+    font-size: 0.9375rem;
+    line-height: 24px;
+    font-weight: 600;
+}
+
+.logo-text p {
+    color: var(--gold-accent);
+    font-size: 0.75rem;
+    line-height: 18px;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+.menu {
+    list-style: none;
+}
+
+.menu li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.menu li::before {
+    content: "";
+    position: absolute;
+    left: -100%;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.08);
+    transition: 0.4s;
+}
+
+.menu li:hover::before {
+    left: 0;
+}
+
+.menu li:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.menu .active {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: inset 3px 0 0 var(--gold-accent);
+}
+
+.menu i {
+    font-size: 1.125rem;
+}
+
+/* =========================================================================
+   3. TOPBAR & DROPDOWN NAVIGATION LOGOUT (ANTI-KETUTUPAN)
+   ========================================================================= */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    opacity: 0;
+    animation: fadeInUp 0.6s ease-out forwards;
+    animation-delay: 0.1s;
+
+    /* Mengangkat seluruh baris navigasi agar melayang di atas card konten */
+    position: relative;
+    z-index: 100;
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.topbar-left i {
+    font-size: 1.375rem;
+    color: var(--ink-soft);
+}
+
+.topbar-left h1 {
+    font-size: 2.125rem;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    z-index: 101;
+}
+
+.notification {
+    position: relative;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.notification i {
+    font-size: 1.125rem;
+    color: var(--ink-soft);
+    transition: transform 0.3s ease;
+}
+
+.notif-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--danger);
+    color: white;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative; /* Menjadi patokan koordinat dropdown */
+    z-index: 102;
+}
+
+.profile img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.profile-info h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 18px;
+    color: var(--ink);
+}
+
+.profile-info p {
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 16px;
+    font-weight: 400;
+}
+
+/* Layer dropdown dikunci mutlak melayang paling depan global */
+.dropdown-content {
+    display: block;
+    position: absolute;
+    top: 52px;
+    right: 0px;
+    background-color: var(--surface);
+    min-width: 170px;
+    box-shadow: var(--shadow-lg);
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    z-index: 999999 !important;
+    overflow: hidden;
+
+    /* Tersembunyi & siap dianimasikan, bukan display:none instan */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px) scale(0.97);
+    transform-origin: top right;
+    transition:
+        opacity 0.18s ease,
+        transform 0.18s ease,
+        visibility 0.18s;
+    pointer-events: none;
+}
+
+.dropdown-content.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.dropdown-content a {
+    transition: background 0.2s;
+}
+
+.dropdown-content a:hover {
+    background: var(--maroon-tint);
+}
+
+/* =========================================================================
+   4. STATISTIC WIDGET CARDS
+   ========================================================================= */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.card {
+    background: var(--surface);
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    opacity: 0;
+    animation: fadeInUp 0.5s ease-out forwards;
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.card:nth-child(1) {
+    animation-delay: 0.15s;
+}
+.card:nth-child(2) {
+    animation-delay: 0.25s;
+}
+.card:nth-child(3) {
+    animation-delay: 0.35s;
+}
+.card:nth-child(n + 4) {
+    animation-delay: 0.35s;
+}
+
+.card-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 1.75rem;
+}
+
+.maroon {
+    background: var(--maroon-700);
+}
+.orange {
+    background: var(--gold-accent);
+}
+.green {
+    background: var(--success);
+}
+
+.card-text h5 {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+}
+
+.card-text h2 {
+    font-size: 2.125rem;
+    font-weight: 700;
+    margin: 4px 0;
+}
+
+.card-text p {
+    font-size: 0.8125rem;
+    color: var(--muted);
+}
+
+/* =========================================================================
+   5. GRID AREA KONTEN (TABEL & JADWAL)
+   ========================================================================= */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+    gap: 24px;
+    align-items: start; /* Mencegah elemen kanan ikut memanjang */
+}
+
+/* Mencegah elemen grid melebar mengikuti lebar konten (mis. tabel dengan banyak kolom),
+   yang bisa mendorong kolom kanan (kalender) keluar layar dan memicu scroll horizontal
+   di seluruh halaman. */
+.dashboard-grid > .left-content,
+.dashboard-grid > .right-content {
+    min-width: 0;
+}
+
+/* --- Wrapper Tabel: tinggi tetap konsisten, scroll hanya jika baris melebihi area ini --- */
+.table-responsive {
+    width: 100%;
+    max-height: 480px;
+    overflow-y: auto;
+    overflow-x: auto; /* Kalau tabel tetap terlalu lebar, scroll di dalam box-nya sendiri, bukan mendorong layout halaman */
+    border: 1px solid var(--line);
+    border-radius: 12px;
+}
+
+.table-responsive thead th {
+    position: sticky;
+    top: 0;
+    background: var(--paper);
+    z-index: 10;
+    padding: 12px;
+}
+
+/* Pastikan kolom kanan (Kalender) tidak terpengaruh tinggi kolom kiri */
+.right-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.content-box {
+    background: var(--surface);
+    padding: 24px;
+}
+
+.left-content .content-box:first-child {
+    opacity: 0;
+    animation: fadeInUp 0.6s ease-out forwards;
+    animation-delay: 0.3s;
+    transition: opacity 0.2s ease;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.table-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+/* Pagination client-side (sama persis dengan halaman Dosen) */
+.pagination-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.page-btn {
+    background-color: var(--surface);
+    border: 1px solid var(--line);
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: "Poppins", sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    transition: all 0.2s;
+}
+
+.page-btn:hover {
+    background-color: var(--paper);
+}
+
+.page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.active-page {
+    background-color: var(--maroon-600) !important;
+    color: #ffffff !important;
+    border-color: var(--maroon-600) !important;
+    font-weight: 600;
+}
+
+.table-tools {
+    display: flex;
+    gap: 12px;
+}
+
+.table-tools select,
+.table-tools input,
+.statistik-header select {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 0.875rem;
+    outline: none;
+    background: white;
+}
+
+.table-tools input {
+    width: 260px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    text-align: left;
+    padding: 16px 12px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+}
+
+td {
+    padding: 16px 12px;
+    font-size: 0.875rem;
+    font-weight: 400;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+table tbody tr:hover {
+    background: var(--paper);
+}
+
+/* =========================================================================
+   Penyesuaian khusus tabel "Jadwal Fakultas Hari Ini" (7 kolom) supaya
+   semua kolom muat tanpa perlu scroll horizontal di dalam box-nya.
+   Tidak menyentuh style tabel global (dipakai juga di halaman Dosen/Ruangan).
+   ========================================================================= */
+.jadwal-fakultas-table th,
+.jadwal-fakultas-table td {
+    padding: 12px 8px;
+    font-size: 0.8125rem;
+    white-space: normal; /* izinkan teks panjang (Mata Kuliah/Dosen) turun baris, bukan memaksa 1 baris */
+}
+
+.jadwal-fakultas-table td:first-child,
+.jadwal-fakultas-table th:first-child {
+    white-space: nowrap; /* kolom Jam tetap satu baris, isinya pendek */
+}
+
+.jadwal-fakultas-table td:first-child {
+    font-family: var(--font-mono);
+    color: var(--ink-soft);
+    letter-spacing: -0.02em;
+}
+
+.jadwal-fakultas-table .status,
+.jadwal-fakultas-table .kelas-badge {
+    min-width: unset;
+    padding: 5px 10px;
+    font-size: 0.7rem;
+    white-space: nowrap;
+}
+
+tbody tr {
+    opacity: 0;
+    animation: fadeInUp 0.4s ease-out forwards;
+}
+
+/* Stagger halus antar baris, dibatasi 10 baris pertama agar total delay tidak kepanjangan */
+tbody tr:nth-child(1) {
+    animation-delay: 0.05s;
+}
+tbody tr:nth-child(2) {
+    animation-delay: 0.1s;
+}
+tbody tr:nth-child(3) {
+    animation-delay: 0.15s;
+}
+tbody tr:nth-child(4) {
+    animation-delay: 0.2s;
+}
+tbody tr:nth-child(5) {
+    animation-delay: 0.25s;
+}
+tbody tr:nth-child(6) {
+    animation-delay: 0.3s;
+}
+tbody tr:nth-child(7) {
+    animation-delay: 0.35s;
+}
+tbody tr:nth-child(8) {
+    animation-delay: 0.4s;
+}
+tbody tr:nth-child(9) {
+    animation-delay: 0.45s;
+}
+tbody tr:nth-child(10) {
+    animation-delay: 0.5s;
+}
+tbody tr:nth-child(n + 11) {
+    animation-delay: 0.5s;
+}
+
+.status,
+.room-status {
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 14px;
+    min-height: 34px;
+    border-radius: 999px;
+    line-height: 1;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    transition:
+        background-color 0.4s ease,
+        color 0.4s ease,
+        box-shadow 0.4s ease;
+}
+
+/* Titik indikator kecil di depan teks status — bahasa visual "chip" ala
+   dashboard modern, sekaligus penanda status yang bisa dibaca cepat tanpa
+   perlu baca teksnya (warna beda per status). */
+.status::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 6px;
+    flex-shrink: 0;
+}
+.status.success::before {
+    background: var(--success);
+}
+.status.info::before {
+    background: var(--info);
+}
+.status.gray-badge::before {
+    background: var(--muted);
+}
+
+/* Animasi Denyut (Pulsing) untuk jadwal yang sedang berjalan */
+@keyframes pulseGreen {
+    0% {
+        box-shadow: 0 0 0 0 rgba(21, 128, 61, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 6px rgba(21, 128, 61, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(21, 128, 61, 0);
+    }
+}
+
+@keyframes pulseRed {
+    0% {
+        box-shadow: 0 0 0 0 rgba(154, 28, 28, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 6px rgba(154, 28, 28, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(154, 28, 28, 0);
+    }
+}
+
+.pulsing {
+    animation: pulseGreen 2s infinite;
+}
+
+.pulsing-red {
+    animation: pulseRed 2s infinite;
+}
+
+.gray-badge {
+    background: var(--paper);
+    color: var(--muted);
+}
+
+.success {
+    background: var(--success-bg);
+    color: var(--success);
+}
+.info {
+    background: var(--info-bg);
+    color: var(--info);
+    min-width: 120px;
+}
+.blue-status {
+    background: var(--danger-bg);
+    color: var(--danger);
+    min-width: 120px;
+}
+.warning {
+    background: var(--warning-bg);
+    color: var(--warning);
+}
+
+.kelas-badge {
+    background: var(--paper);
+    color: var(--ink-soft);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.action-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: var(--muted);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+
+.action-btn:hover {
+    background: var(--paper);
+}
+.action-btn i {
+    font-size: 0.9375rem;
+}
+
+.table-footer {
+    margin-top: 20px;
+}
+
+.lihat-btn {
+    border: 1px solid var(--maroon-700);
+    background: transparent;
+    color: var(--maroon-700);
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.lihat-btn:hover {
+    background: var(--maroon-700);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* =========================================================================
+   6. GRAFIK BATANG STATISTIK
+   ========================================================================= */
+.statistik-box {
+    margin-top: 24px;
+    opacity: 0;
+    animation: fadeInUp 0.8s ease-out forwards;
+    animation-delay: 0.5s;
+}
+
+.statistik-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.statistik-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.chart-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    height: 280px;
+    padding: 20px 10px 0;
+    border-left: 2px solid var(--line);
+    border-bottom: 2px solid var(--line);
+    overflow: hidden;
+}
+
+.chart-wrapper::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: repeating-linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.05) 0px,
+        rgba(0, 0, 0, 0.05) 1px,
+        transparent 1px,
+        transparent 60px
+    );
+    z-index: 0;
+}
+
+.chart-item {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    animation: fadeInUp 0.7s ease-out forwards;
+}
+
+/* Stagger animasi grafik batang */
+.chart-item:nth-child(1) {
+    animation-delay: 0.7s;
+}
+.chart-item:nth-child(2) {
+    animation-delay: 0.85s;
+}
+.chart-item:nth-child(3) {
+    animation-delay: 1s;
+}
+.chart-item:nth-child(4) {
+    animation-delay: 1.15s;
+}
+.chart-item:nth-child(5) {
+    animation-delay: 1.3s;
+}
+
+.bar {
+    width: 60px;
+    background: var(--maroon-700);
+    border-radius: 14px 14px 0 0;
+    position: relative;
+    z-index: 2;
+    box-shadow: var(--shadow-sm);
+    transition: 0.4s;
+}
+
+.bar:hover {
+    opacity: 0.8;
+    transform: translateY(-5px);
+}
+
+.chart-item span {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    margin-top: 6px;
+}
+
+.chart-item p {
+    font-size: 0.875rem;
+    color: var(--muted);
+}
+
+/* =========================================================================
+   7. KALENDER MINI UTARA KANAN
+   ========================================================================= */
+.right-content .content-box:first-child {
+    opacity: 0;
+    animation: fadeInUp 0.6s ease-out forwards;
+    animation-delay: 0.4s;
+}
+
+.calendar-header {
+    margin-bottom: 24px;
+}
+
+.calendar-header h2 {
+    font-size: 1.375rem;
+    font-weight: 700;
+}
+
+.calendar-days,
+.calendar-dates {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+}
+
+.calendar-days {
+    margin-bottom: 16px;
+}
+
+.calendar-days span {
+    font-size: 0.8125rem;
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.calendar-dates {
+    gap: 14px;
+    justify-items: center;
+}
+
+.calendar-dates div {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    border-radius: 50%;
+    font-size: 0.875rem;
+    font-weight: 400;
+    transition: 0.2s;
+}
+
+.calendar-dates div:hover {
+    background: var(--paper);
+}
+
+.active-date {
+    background-color: var(--maroon-700) !important;
+    color: white !important;
+    font-weight: 600;
+}
+
+.mute {
+    color: var(--muted);
+}
+
+/* =========================================================================
+   8. WIDGET STATUS PEMAKAIAN RUANGAN
+   ========================================================================= */
+.right-content .content-box:last-child {
+    opacity: 0;
+    animation: fadeInUp 0.6s ease-out forwards;
+    animation-delay: 0.6s;
+}
+
+.ruangan-header {
+    margin-bottom: 20px;
+}
+
+#room-status-container {
+    max-height: 420px;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+#room-status-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+#room-status-container::-webkit-scrollbar-thumb {
+    background: var(--line-strong);
+    border-radius: 999px;
+}
+
+#room-status-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.ruangan-header h2 {
+    font-size: 1.375rem;
+    font-weight: 700;
+}
+
+.room-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+    gap: 16px;
+    opacity: 0;
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* Stagger item list ruangan: cukup untuk sampai 10 ruangan aktif tanpa "loncat" urutan */
+.room-item:nth-child(2) {
+    animation-delay: 0.7s;
+}
+.room-item:nth-child(3) {
+    animation-delay: 0.8s;
+}
+.room-item:nth-child(4) {
+    animation-delay: 0.9s;
+}
+.room-item:nth-child(5) {
+    animation-delay: 1s;
+}
+.room-item:nth-child(6) {
+    animation-delay: 1.1s;
+}
+.room-item:nth-child(7) {
+    animation-delay: 1.2s;
+}
+.room-item:nth-child(8) {
+    animation-delay: 1.3s;
+}
+.room-item:nth-child(9) {
+    animation-delay: 1.4s;
+}
+.room-item:nth-child(10) {
+    animation-delay: 1.5s;
+}
+.room-item:nth-child(n + 11) {
+    animation-delay: 1.5s;
+} /* cap: item ke-11+ tetap tampil, tanpa delay makin panjang */
+
+.room-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.room-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.green-bg {
+    background: var(--success);
+}
+.blue-bg {
+    background: var(--info);
+}
+.gray-bg {
+    background: var(--muted);
+}
+
+.room-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.room-text h4 {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.room-text p {
+    font-size: 0.8125rem;
+    color: var(--muted);
+}
+
+.green-status {
+    background: var(--success-bg);
+    color: var(--success);
+}
+.blue-status {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+.gray-status {
+    background: var(--paper);
+    color: var(--muted);
+}
+
+/* =========================================================================
+   9. INTERACTIVE HOVER TRANSITIONS
+   ========================================================================= */
+.card,
+.content-box,
+.room-item,
+.notification,
+.profile img {
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+.card:hover,
+.content-box:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.profile img:hover {
+    transform: scale(1.05);
+}
+
+.notification:hover i {
+    transform: rotate(10deg) scale(1.1);
+}
+
+/* =========================================================================
+   10. MODAL POPUP TINDAKAN DI JADWAL
+   ========================================================================= */
+.modal-overlay {
+    visibility: hidden;
+    opacity: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 200000; /* Paling tinggi di atas segalanya */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition:
+        opacity 0.3s ease,
+        visibility 0.3s ease;
+}
+
+.modal-overlay.show {
+    visibility: visible;
+    opacity: 1;
+}
+
+.modal-content {
+    background: var(--surface);
+    padding: 20px 25px;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.show .modal-content {
+    transform: translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 10px;
+}
+
+.modal-header h2 {
+    font-size: 1.125rem;
+    color: var(--ink);
+}
+
+.close-modal {
+    cursor: pointer;
+    font-size: 1.25rem;
+    color: var(--muted);
+    transition: color 0.2s;
+}
+
+.close-modal:hover {
+    color: #b3261e;
+}
+.modal-body p {
+    margin-bottom: 8px;
+    font-size: 0.9375rem;
+    color: var(--ink-soft);
+}
+.modal-footer {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.modal-footer button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition:
+        background 0.2s,
+        transform 0.1s;
+    color: #fff;
+    font-weight: 500;
+}
+
+.modal-footer button:active {
+    transform: scale(0.95);
+}
+.btn-detail {
+    background-color: var(--info);
+}
+.btn-detail:hover {
+    background-color: #24487f;
+}
+.btn-edit {
+    background-color: var(--gold-accent);
+    color: var(--ink) !important;
+}
+.btn-edit:hover {
+    background-color: #c1913d;
+}
+.btn-delete {
+    background-color: var(--danger);
+}
+.btn-delete:hover {
+    background-color: #8f1e18;
+}
+
+/* =========================================================================
+   11. KEYFRAME ANIMASI TIMELINE MASUK HALAMAN
+   ========================================================================= */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(25px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-25px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* =========================================================================
+   12. MEDIA QUERIES RESPONSIF SMARTPHONE / LAYAR MINI
+   ========================================================================= */
+@media (max-width: 1200px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    .cards {
+        grid-template-columns: 1fr;
+    }
+    .table-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    .table-tools {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+    .table-tools input {
+        width: 100%;
+    }
+    /* Disamakan dengan dosen.css & Jadwal.css: body diubah jadi column supaya
+       sidebar (elemen pertama) otomatis stack di ATAS main-content, bukan
+       tetap sejajar di kiri (yang menyebabkan layout berantakan). */
+    body {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+    }
+    .main-content {
+        margin-left: 0;
+        padding: 24px;
+    }
+}
+
+/* =========================================================================
+   13. FIX TAMPILAN RESPONSIVE (OPTIMASI LEBAR & PROPORSI)
+   ========================================================================= */
+
+/* Membatasi lebar maksimum agar konten tidak terlalu lebar di monitor besar.
+   Dibatasi min-width: 1201px supaya TIDAK menabrak aturan mobile di bagian 12
+   (yang mengubah sidebar jadi position: static & main-content margin-left: 0). */
+@media (min-width: 1201px) {
+    .main-content {
+        max-width: 1500px;
+        margin-left: 260px; /* Tetap sesuai sidebar Anda */
+        margin-right: auto;
+        width: calc(100% - 260px);
+    }
+}
+
+/* Membuat kartu statistik lebih proporsional dan tidak terlalu besar */
+.cards {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.card {
+    padding: 20px;
+    gap: 14px;
+}
+
+.card-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+}
+
+/* Mengurangi padding agar layout lebih compact (padat) */
+.content-box {
+    padding: 18px;
+}
+
+/* Memperbaiki tampilan tabel agar tidak terlalu renggang */
+td,
+th {
+    padding: 12px 10px;
+}
+
+/* Penyesuaian khusus jika layar di atas 1600px */
+@media (min-width: 1600px) {
+    .main-content {
+        padding: 36px 50px;
+    }
+}
+
+/* Penyesuaian sidebar untuk layar menengah agar tidak terlalu lebar.
+   Rentang dibatasi 1201px-1300px saja (bukan max-width: 1300px) supaya
+   tidak ikut berlaku di HP dan menabrak layout mobile pada bagian 12. */
+@media (min-width: 1201px) and (max-width: 1300px) {
+    .sidebar {
+        width: 240px;
+    }
+    .main-content {
+        margin-left: 240px;
+        width: calc(100% - 240px);
+    }
+}
+
+/* =========================================================================
+   14. WIDGET KHUSUS DASHBOARD MAHASISWA (JADWAL TERDEKAT)
+   ========================================================================= */
+
+.reminder-card {
+    background: linear-gradient(135deg, var(--maroon-700), var(--maroon-600));
+    color: white;
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 10px 25px -5px rgba(122, 12, 30, 0.3);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.6s ease-out forwards;
+    animation-delay: 0.3s;
+}
+
+.reminder-card.empty {
+    background: var(--surface);
+    color: var(--ink-soft);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.reminder-icon {
+    font-size: 2.5rem;
+    opacity: 0.5;
+}
+
+.reminder-card.empty .reminder-icon {
+    color: var(--success); /* Warna hijau untuk status selesai/beres */
+}
+
+.reminder-content {
+    flex-grow: 1;
+}
+
+.reminder-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    opacity: 0.8;
+    margin: 0;
+}
+
+.reminder-matkul {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 4px 0 12px 0;
+    line-height: 1.3;
+}
+
+.reminder-card.empty .reminder-matkul {
+    font-size: 1.1rem;
+    color: var(--ink-soft);
+    font-weight: 600;
+}
+
+.reminder-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+.reminder-details span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.reminder-countdown {
+    text-align: center;
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    padding-left: 24px;
+    min-width: 120px;
+}
+
+.reminder-countdown p {
+    font-size: 0.8rem;
+    margin: 0 0 4px 0;
+    opacity: 0.8;
+}
+
+.reminder-countdown #countdown-timer {
+    font-size: 1.75rem;
+    font-weight: 700;
+    font-family: "monospace", monospace;
+}
+
+/* =========================================================================
+   15. DROPDOWN NOTIFIKASI
+   ========================================================================= */
+
+.notification-dropdown {
+    display: block;
+    position: absolute;
+    top: 52px;
+    right: 0;
+    width: 360px;
+    max-width: 90vw;
+    background-color: var(--surface);
+    box-shadow: var(--shadow-lg);
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    z-index: 9999;
+    overflow: hidden;
+    font-family: "Poppins", sans-serif;
+
+    /* Tersembunyi & siap dianimasikan, bukan display:none instan */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px) scale(0.97);
+    transform-origin: top right;
+    transition:
+        opacity 0.18s ease,
+        transform 0.18s ease,
+        visibility 0.18s;
+    pointer-events: none;
+}
+
+.notification-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.notification-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.notification-header h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.btn-hapus-notif {
+    border: none;
+    background: none;
+    color: var(--maroon-600);
+    font-family: "Poppins", sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-hapus-notif:hover {
+    background-color: var(--maroon-tint);
+}
+
+.notification-body {
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+    transition: background-color 0.2s;
+}
+
+.notification-item:hover {
+    background-color: var(--paper);
+}
+
+.notif-icon-wrapper {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--info-bg);
+    color: var(--info);
+    flex-shrink: 0;
+}
+
+.notif-content p {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: var(--ink-soft);
+}
+
+.notif-content small {
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
+.notification-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+}
+
+.notification-empty i {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    display: block;
+    opacity: 0.7;
+}
+
+/* =========================================================================
+   16. KONTROL PAGINATION
+   ========================================================================= */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+}
+
+.pagination-info {
+    font-size: 0.8125rem; /* 13px */
+    color: var(--muted);
+}
+
+.pagination-buttons {
+    display: flex;
+    gap: 6px;
+}
+
+.pagination-btn {
+    border: 1px solid var(--line);
+    background: white;
+    color: var(--ink-soft);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 32px;
+    text-align: center;
+}
+
+.pagination-btn:hover {
+    background: var(--paper);
+    border-color: var(--line-strong);
+}
+
+.pagination-btn.active {
+    background: var(--maroon-700);
+    color: white;
+    border-color: var(--maroon-700);
+    box-shadow: 0 2px 6px rgba(122, 12, 30, 0.2);
+}
+
+/* =========================================================================
+   Toggle switch modern (dipakai pertama kali di "Tampilkan yang sudah
+   selesai" di Dashboard, tapi ditulis generik supaya bisa dipakai ulang
+   di halaman lain kalau butuh switch serupa nanti)
+   ========================================================================= */
+.modern-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.modern-toggle input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.modern-toggle-track {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    background: var(--line-strong);
+    border-radius: 999px;
+    flex-shrink: 0;
+    transition: background-color 0.25s ease;
+}
+
+.modern-toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background: var(--surface);
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    transition: transform 0.25s ease;
+}
+
+.modern-toggle input:checked + .modern-toggle-track {
+    background: var(--maroon-700);
+}
+
+.modern-toggle input:checked + .modern-toggle-track .modern-toggle-thumb {
+    transform: translateX(18px);
+}
+
+.modern-toggle input:focus-visible + .modern-toggle-track {
+    outline: 2px solid var(--maroon-700);
+    outline-offset: 2px;
+}
+
+.modern-toggle-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-soft);
+}

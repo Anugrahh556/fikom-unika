@@ -1,0 +1,329 @@
+/* =========================================================================
+   JADWAL.CSS — Gaya KHUSUS halaman Jadwal saja.
+   PENTING: file ini dimuat SETELAH Dashboard.css (lihat jadwal_blade.php),
+   jadi sebelumnya banyak rule di sini (sidebar, topbar, notification,
+   .content-box, table, .kelas-badge, pagination) MENIMPA ulang token
+   premium dari Dashboard.css — itulah sumber inkonsistensi antar halaman
+   yang pernah ditemukan sebelumnya. Semua duplikasi itu sudah dibuang;
+   file ini sekarang HANYA berisi yang benar-benar unik untuk halaman
+   Jadwal: filter bar, search box, kartu jam perkuliahan, dan tabel jadwal.
+   Semua warna/radius/shadow diambil dari variabel :root di Dashboard.css.
+   ========================================================================= */
+
+/* =========================================================================
+   FILTER BAR
+   ========================================================================= */
+.filter-section {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 24px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: flex-end;
+    gap: 18px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.5s ease-out forwards;
+    animation-delay: 0.1s;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-group label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+}
+
+.filter-group select {
+    width: 220px;
+    padding: 12px 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    outline: none;
+    background: var(--surface);
+    color: var(--ink);
+    transition: 0.2s;
+}
+
+.filter-group select:focus {
+    border-color: var(--maroon-600);
+    box-shadow: 0 0 0 4px var(--maroon-tint);
+}
+
+.btn-filter {
+    height: 48px;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0 30px;
+    background: var(--maroon-700);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+.btn-filter:hover {
+    background: var(--maroon-900);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* =========================================================================
+   EXPORT BUTTON (outline, di samping "Tambah Jadwal")
+   ========================================================================= */
+.export-btn {
+    border: 1px solid var(--maroon-700);
+    background: transparent;
+    color: var(--maroon-700);
+    padding: 12px 20px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+.export-btn:hover {
+    background: var(--maroon-700);
+    color: white;
+}
+
+/* =========================================================================
+   SEARCH BOX
+   ========================================================================= */
+.search-box {
+    width: 320px;
+    max-width: 100%;
+    height: 48px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+    margin-bottom: 24px;
+    transition: 0.2s;
+}
+
+.search-box i {
+    color: var(--muted);
+}
+
+.search-box input {
+    border: none;
+    outline: none;
+    width: 100%;
+    background: transparent;
+    color: var(--ink);
+    font-family: var(--font-sans);
+}
+
+.search-box:focus-within {
+    border-color: var(--maroon-600);
+    box-shadow: 0 0 0 4px var(--maroon-tint);
+}
+
+/* =========================================================================
+   TABLE — kolom khusus jadwal (mata kuliah & jam)
+   Table dasar (th/td/hover/badge/pagination) sudah ditangani Dashboard.css.
+   ========================================================================= */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    min-width: 1200px;
+}
+
+.matkul-cell h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+}
+
+.matkul-cell span {
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
+/* Kolom Jam pakai mono, senada dengan kolom Jam di Dashboard */
+#jadwalBody td:nth-child(2) {
+    font-family: var(--font-mono);
+    color: var(--ink-soft);
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+}
+
+/* =========================================================================
+   KARTU "JAM PERKULIAHAN" — signature khusus halaman ini
+   ========================================================================= */
+.jam-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 30px;
+    box-shadow: var(--shadow-sm);
+    opacity: 0;
+    animation: fadeUp 0.6s ease-out forwards;
+    animation-delay: 0.3s;
+}
+
+.jam-title {
+    border-left: 3px solid var(--maroon-700);
+    padding-left: 14px;
+    margin-bottom: 30px;
+}
+
+.jam-title h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.jam-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.jam-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.jam-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+    transition: 0.25s ease;
+}
+
+.jam-row:hover {
+    transform: translateX(6px);
+    background: var(--maroon-tint);
+    border-radius: var(--radius-sm);
+    padding-left: 10px;
+}
+
+.jam-row h4 {
+    color: var(--maroon-700);
+    font-size: 1.375rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+}
+
+.jam-row p {
+    color: var(--ink-soft);
+    font-size: 0.9375rem;
+    font-family: var(--font-mono);
+}
+
+/* =========================================================================
+   RESPONSIVE
+   ========================================================================= */
+@media (max-width: 1200px) {
+    .jam-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .jam-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-group select {
+        width: 100%;
+    }
+
+    .filter-section {
+        gap: 14px;
+    }
+}
+
+/* =========================================================================
+   PAGINATION — khusus halaman Jadwal (nama class beda dari widget
+   pagination di Dashboard.css: di sini pakai .pagination/.active-page,
+   jadi memang harus didefinisikan di sini, bukan duplikat).
+   ========================================================================= */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 26px;
+}
+
+.pagination p {
+    color: var(--muted);
+    font-size: 0.875rem;
+}
+
+.pagination-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.pagination-buttons button {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink-soft);
+    font-family: var(--font-sans);
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.pagination-buttons button:hover:not(.active-page) {
+    border-color: var(--maroon-600);
+    color: var(--maroon-700);
+}
+
+.active-page {
+    background: var(--maroon-700) !important;
+    color: white !important;
+    border: none !important;
+}
+
+/* =========================================================================
+   ANIMASI KHUSUS HALAMAN JADWAL
+   ========================================================================= */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Menghias scrollbar internal form modal tambah agar tampak estetik & clean */
+#modalTambahJadwal .modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+#modalTambahJadwal .modal-body::-webkit-scrollbar-track {
+    background: var(--paper);
+    border-radius: 8px;
+}
+#modalTambahJadwal .modal-body::-webkit-scrollbar-thumb {
+    background: var(--maroon-600);
+    border-radius: 8px;
+}
+#modalTambahJadwal .modal-body::-webkit-scrollbar-thumb:hover {
+    background: var(--maroon-900);
+}

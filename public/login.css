@@ -1,0 +1,361 @@
+/* =========================================================================
+   DESIGN TOKENS — sama persis dengan Dashboard.css, supaya halaman Login
+   (yang juga berdiri sendiri) tetap identik visualnya.
+   ========================================================================= */
+:root {
+    --ink: #1c1517;
+    --ink-soft: #4a4144;
+    --muted: #8c8386;
+
+    --paper: #faf9f7;
+    --surface: #ffffff;
+    --line: #ece5e3;
+    --line-strong: #ddd4d1;
+
+    --maroon-900: #430b16;
+    --maroon-700: #641021;
+    --maroon-600: #7d1626;
+    --maroon-tint: #fbeeee;
+    --gold-accent: #d4a24c;
+
+    --danger: #b3261e;
+    --danger-bg: #fbeceb;
+    --success: #1f7a4d;
+    --success-bg: #eaf5ef;
+
+    --font-sans: "Inter", -apple-system, "Segoe UI", sans-serif;
+
+    --shadow-sm: 0 1px 2px rgba(28, 21, 23, 0.05);
+    --shadow-md:
+        0 1px 1px rgba(28, 21, 23, 0.04), 0 8px 20px -6px rgba(28, 21, 23, 0.12);
+    --shadow-lg:
+        0 2px 4px rgba(28, 21, 23, 0.06),
+        0 20px 40px -12px rgba(28, 21, 23, 0.18);
+}
+
+/* =========================================================================
+   GAYA STRUKTUR UTAMA RESPONSIF (ANTI-SCROLLING)
+   ========================================================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-sans);
+    background: var(--paper);
+    min-height: 100vh;
+    height: 100vh; /* Mengunci tinggi body pas dengan layar browser */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Memotong sisa elemen agar tidak memicu scrolling */
+}
+
+.container {
+    width: 100%;
+    max-width: 1440px;
+    height: 100vh; /* Mengikuti tinggi penuh layar secara dinamis */
+    max-height: 995px; /* Menjaga batas estetik panel */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    overflow: hidden;
+}
+
+/* =========================================================================
+   PANEL KIRI (HERO IMAGE)
+   ========================================================================= */
+.left-panel {
+    position: relative;
+    width: 810px;
+    height: 100%; /* Mengikuti tinggi kontainer secara presisi */
+    overflow: hidden;
+    border-radius: 22px;
+    animation: imageReveal 1.1s ease forwards;
+}
+
+.hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center; /* Mengutamakan logo bagian atas kampus agar tidak kepotong */
+    border-radius: 22px;
+    transform: scale(1.02); /* Skala disesuaikan agar teks tidak terpotong */
+    animation: zoomOut 1.8s ease forwards;
+}
+
+/* =========================================================================
+   PANEL KANAN & KARTU LOGIN (DIREDUKSI AGAR SEIMBANG)
+   ========================================================================= */
+.right-panel {
+    width: 560px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-card {
+    width: 470px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 28px 38px 32px 38px; /* Diperketat agar tinggi seimbang dengan register */
+    border-radius: 18px;
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(10px);
+    animation: fadeInUp 1s ease forwards;
+    opacity: 0;
+}
+
+.logo {
+    width: 100px; /* Diperkecil dari 120px agar hemat ruang vertikal */
+    display: block;
+    margin: 0 auto 12px; /* Margin bawah diperkecil */
+    animation: floating 3s ease-in-out infinite;
+}
+
+.login-card h2 {
+    font-size: 30px; /* Sedikit diperkecil dari 34px */
+    font-weight: 700;
+    text-align: center;
+    color: var(--maroon-700);
+    margin-bottom: 2px;
+}
+
+.subtitle {
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 24px; /* Dikurangi dari 38px */
+}
+
+/* =========================================================================
+   KOMPONEN INPUT & ELEMEN FORM
+   ========================================================================= */
+.input-group {
+    margin-bottom: 16px; /* Jarak antar input disamakan dengan register */
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+}
+
+.input-box {
+    display: flex;
+    align-items: center;
+    height: 48px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0 14px;
+    background: var(--surface);
+    transition: 0.3s;
+}
+
+.input-box:hover {
+    border-color: var(--maroon-600);
+}
+
+.input-box:focus-within {
+    border-color: var(--maroon-600);
+    box-shadow: 0 0 0 4px var(--maroon-tint);
+}
+
+.input-box i {
+    color: var(--muted);
+    font-size: 14px;
+    width: 16px; /* Mengunci lebar ikon agar teks placeholder sejajar dengan register */
+    text-align: center;
+}
+
+.input-box input {
+    width: 100%;
+    border: none;
+    outline: none;
+    padding-left: 12px;
+    font-size: 14px;
+    font-family: var(--font-sans);
+    background: transparent;
+}
+
+.options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px; /* Dikurangi dari 28px */
+}
+
+.remember {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.remember input {
+    accent-color: var(--maroon-700);
+    width: 16px;
+    height: 16px;
+}
+
+.options a {
+    color: var(--maroon-700);
+    text-decoration: none;
+    font-size: 13px;
+}
+
+/* =========================================================================
+   TOMBOL UTAMA & ELEMEN PEMBATAS
+   ========================================================================= */
+.btn-login {
+    width: 100%;
+    height: 48px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(150deg, var(--maroon-600), var(--maroon-900));
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.35s;
+}
+
+.btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 20px 0; /* Dikurangi dari 28px agar lebih padat */
+}
+
+.divider span {
+    flex: 1;
+    height: 1px;
+    background: var(--line-strong);
+}
+
+.divider p {
+    font-size: 13px;
+    color: var(--ink-soft);
+}
+
+.btn-register {
+    width: 100%;
+    height: 48px;
+    border-radius: 8px;
+    border: 1.8px solid var(--maroon-700);
+    background: transparent;
+    color: var(--maroon-700);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-register:hover {
+    background: var(--maroon-700);
+    color: white;
+}
+
+/* =========================================================================
+   TIMELINE ANIMASI
+   ========================================================================= */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes imageReveal {
+    from {
+        opacity: 0;
+        transform: translateX(-60px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes zoomOut {
+    from {
+        transform: scale(1.05);
+    }
+    to {
+        transform: scale(1.02);
+    }
+}
+
+@keyframes floating {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+/* Tambahan class transisi khusus keluar halaman asli milikmu */
+.slide-out-left {
+    animation: slideOutLeft 0.45s ease forwards !important;
+}
+
+@keyframes slideOutLeft {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-60px);
+    }
+}
+
+/* =========================================================================
+   MEDIA QUERIES (RESPONSIF SMARTPHONE)
+   ========================================================================= */
+@media (max-width: 1200px) {
+    body {
+        overflow-y: auto;
+        height: auto;
+    }
+
+    .container {
+        flex-direction: column;
+        width: 100%;
+        height: auto;
+        gap: 30px;
+        overflow: visible;
+    }
+
+    .left-panel,
+    .right-panel {
+        width: 100%;
+        height: auto;
+    }
+
+    .left-panel {
+        max-height: 400px;
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 480px;
+    }
+}
